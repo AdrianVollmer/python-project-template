@@ -42,6 +42,7 @@ my-project/
 ├── tests/
 │   └── test_<package_name>.py
 ├── .pre-commit-config.yaml
+├── .gitignore
 ├── justfile
 ├── pyproject.toml
 └── zensical.toml
