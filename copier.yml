@@ -1,0 +1,30 @@
+_subdirectory: template
+_min_copier_version: "9.0.0"
+
+project_name:
+  type: str
+  help: Human-readable project name (e.g. "My Cool Tool")
+  validator: >-
+    {% if not project_name %}Project name cannot be empty{% endif %}
+
+project_description:
+  type: str
+  help: One-line project description
+  default: ""
+
+package_name:
+  type: str
+  help: Importable Python package name (snake_case)
+  default: "{{ project_name | lower | replace('-', '_') | replace(' ', '_') }}"
+  validator: >-
+    {% if not (package_name | regex_search('^[a-z_][a-z0-9_]*$')) %}
+    package_name must be a valid Python identifier: lowercase letters, digits, underscores, not starting with a digit
+    {% endif %}
+
+author_name:
+  type: str
+  help: Author full name
+
+author_email:
+  type: str
+  help: Author email

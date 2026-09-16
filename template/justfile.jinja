@@ -1,0 +1,50 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+default:
+    @just --list
+
+# Install/sync dependencies
+sync:
+    uv sync
+
+# Format code
+fmt:
+    uv run ruff format .
+
+# Check formatting without modifying files
+fmt-check:
+    uv run ruff format --check .
+
+# Lint with ruff (pass --fix to auto-fix; used by the pre-commit hook)
+lint *args:
+    uv run ruff check {{ '{{' }}args{{ '}}' }} .
+
+# Type-check with ty
+typecheck:
+    uv run ty check
+
+# Lint, type-check, and verify formatting (no modifications)
+check: lint typecheck fmt-check
+
+# Install git hooks so checks run automatically on commit
+hooks-install:
+    uv run prek install
+
+# Bump project version (major/minor/patch/...), e.g. `just bump minor`
+bump level="patch":
+    uv version --bump {{ '{{' }}level{{ '}}' }}
+
+# Run tests
+test:
+    uv run pytest
+
+# Serve docs locally with live reload
+docs:
+    uv run zensical serve
+
+# Build static docs site
+docs-build:
+    uv run zensical build
+
+# Full check: what CI runs
+ci: sync check test docs-build
