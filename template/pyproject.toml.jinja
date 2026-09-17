@@ -8,8 +8,15 @@ license = { text = "MIT" }
 authors = [
     { name = "{{ author_name }}", email = "{{ author_email }}" },
 ]
-dependencies = []
-
+dependencies = [
+{%- if is_app %}
+    "click>=8.1",
+{%- endif %}
+]
+{% if is_app %}
+[project.scripts]
+{{ package_name.replace('_', '-') }} = "{{ package_name }}.__main__:main"
+{% endif %}
 [dependency-groups]
 dev = [
     "prek>=0.5",
@@ -32,24 +39,30 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = [
+    "A",    # flake8-builtins
+    "ARG",  # flake8-unused-arguments
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
     "E",    # pycodestyle
+    "ERA",  # eradicate (commented-out code)
     "F",    # pyflakes
     "I",    # isort
-    "UP",   # pyupgrade
-    "B",    # flake8-bugbear
-    "SIM",  # flake8-simplify
-    "C4",   # flake8-comprehensions
     "N",    # pep8-naming
-    "A",    # flake8-builtins
+    "PLC",  # pylint
     "PTH",  # flake8-use-pathlib
-    "TID",  # flake8-tidy-imports
-    "ERA",  # eradicate (commented-out code)
-    "ARG",  # flake8-unused-arguments
     "RUF",  # ruff-specific rules
+    "S",    # flake8-bandit
+    "SIM",  # flake8-simplify
+    "T20",  # flake8-print
+    "TID",  # flake8-tidy-imports
+    "UP",   # pyupgrade
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["ARG"]
+"tests/*" = ["ARG", "S101"]
+{% if is_app %}
+"src/{{ package_name }}/cli.py" = ["PLC0415"]
+{% endif %}
 
 [tool.ruff.format]
 quote-style = "double"

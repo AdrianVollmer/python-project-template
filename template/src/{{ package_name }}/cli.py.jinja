@@ -1,0 +1,12 @@
+import click
+
+
+@click.group()
+def cli() -> None:
+    """{{ project_description }}"""
+
+
+@cli.command()
+def hello() -> None:
+    """Example command."""
+    click.echo("Hello from {{ project_name }}!")

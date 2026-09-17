@@ -1,5 +1,11 @@
 _subdirectory: template
 _min_copier_version: "9.0.0"
+_exclude:
+  - |-
+    {% if not is_app %}
+    src/{{ package_name }}/cli.py
+    src/{{ package_name }}/__main__.py
+    {% endif %}
 
 project_name:
   type: str
@@ -28,3 +34,8 @@ author_name:
 author_email:
   type: str
   help: Author email
+
+is_app:
+  type: bool
+  help: Is this a CLI application? (adds click, a __main__.py entry point, and a cli.py scaffold)
+  default: false
