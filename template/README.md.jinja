@@ -10,10 +10,17 @@ and [just](https://github.com/casey/just) as a task runner.
 ```sh
 just sync           # install dependencies
 just fmt            # format code
-just lint           # lint with ruff
-just typecheck      # type-check with ty
+just lint           # lint with ruff{% if with_web_frontend %} and deno{% endif %}
+just typecheck      # type-check with ty{% if with_web_frontend %} and deno{% endif %}
 just check          # lint + typecheck + format-check (no modifications)
 just test           # run tests
+{%- if with_web_frontend %}
+just frontend-build # bundle the frontend into src/{{ package_name }}/static
+{%- endif %}
+{%- if is_app %}
+just run [args]     # run the app{% if with_web_frontend %} (builds the frontend first){% endif %}
+{%- endif %}
+just build          # build sdist and wheel{% if with_web_frontend %} (includes the bundled frontend){% endif %}
 just docs           # serve docs locally
 just hooks-install  # run checks automatically on commit
 just bump [level]   # bump version (patch/minor/major), default patch
@@ -22,8 +29,8 @@ just bump [level]   # bump version (patch/minor/major), default patch
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`) runs `just ci` on every push and
-pull request: `check` (lint, type-check, format-check), tests, and a docs
-build.
+pull request: `check` (lint, type-check, format-check), tests, a docs
+build, and a package build.
 
 ## License
 

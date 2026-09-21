@@ -10,18 +10,30 @@ sync:
 # Format code
 fmt:
     uv run ruff format .
+{%- if with_web_frontend %}
+    uv run deno fmt --config frontend/deno.json frontend
+{%- endif %}
 
 # Check formatting without modifying files
 fmt-check:
     uv run ruff format --check .
+{%- if with_web_frontend %}
+    uv run deno fmt --config frontend/deno.json --check frontend
+{%- endif %}
 
-# Lint with ruff (pass --fix to auto-fix; used by the pre-commit hook)
+# Lint with ruff{% if with_web_frontend %} and deno{% endif %} (pass --fix to auto-fix; used by the pre-commit hook)
 lint *args:
     uv run ruff check {{ '{{' }}args{{ '}}' }} .
+{%- if with_web_frontend %}
+    uv run deno lint --config frontend/deno.json {{ '{{' }}args{{ '}}' }} frontend
+{%- endif %}
 
-# Type-check with ty
+# Type-check with ty{% if with_web_frontend %} and deno{% endif %}
 typecheck:
     uv run ty check
+{%- if with_web_frontend %}
+    uv run deno check --config frontend/deno.json frontend/*.ts
+{%- endif %}
 
 # Lint, type-check, and verify formatting (no modifications)
 check: lint typecheck fmt-check
@@ -37,6 +49,9 @@ bump level="patch":
 # Run tests
 test:
     uv run pytest
+{%- if with_web_frontend %}
+    uv run deno test --config frontend/deno.json frontend
+{%- endif %}
 
 # Serve docs locally with live reload
 docs:
@@ -46,5 +61,26 @@ docs:
 docs-build:
     uv run zensical build
 
+{% if with_web_frontend -%}
+# Bundle the frontend into src/{{ package_name }}/static (included in the wheel)
+frontend-build:
+    uv run deno bundle --config frontend/deno.json --minify frontend/main.ts -o src/{{ package_name }}/static/main.js
+
+# Build the sdist and wheel, including the bundled frontend
+build: frontend-build
+    uv build
+
+{% else -%}
+# Build the sdist and wheel
+build:
+    uv build
+
+{% endif -%}
+{% if is_app -%}
+# Run the app{% if with_web_frontend %} (builds the frontend first){% endif %}, e.g. `just run hello`
+run *args:{% if with_web_frontend %} frontend-build{% endif %}
+    uv run {{ package_name.replace('_', '-') }} {{ '{{' }}args{{ '}}' }}
+
+{% endif -%}
 # Full check: what CI runs
-ci: sync check test docs-build
+ci: sync check test docs-build build

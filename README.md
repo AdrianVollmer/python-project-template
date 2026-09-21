@@ -14,6 +14,14 @@ every push and pull request.
 When `is_app=True`, the `click` library will be pulled in as a dependency with
 some extra scaffolding.
 
+When `with_web_frontend=True`, [deno](https://deno.com/) is added as a dev
+dependency (via the `deno` PyPI package, so no separate install is needed) and
+a `frontend/` TypeScript scaffold is generated. `just fmt`, `lint`, `typecheck`
+and `test` then cover the frontend as well, `just frontend-build` bundles it
+into `src/<package_name>/static/`, and `just build` builds the sdist and wheel
+with the bundle included. With `is_app=True`, `just run` builds the
+frontend and then starts the app. CI and the pre-commit hooks cover it too.
+
 ## Usage
 
 ```sh
@@ -38,6 +46,11 @@ my-project/
 │       └── ci.yml
 ├── docs/
 │   └── index.md
+├── frontend/              # only with with_web_frontend
+│   ├── deno.json
+│   ├── greet.ts
+│   ├── greet_test.ts
+│   └── main.ts
 ├── src/
 │   └── <package_name>/
 │       ├── __init__.py

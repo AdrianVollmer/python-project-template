@@ -30,3 +30,26 @@ repos:
         language: system
         pass_filenames: false
         types: [python]
+{%- if with_web_frontend %}
+
+      - id: deno-fmt
+        name: deno fmt
+        entry: just fmt
+        language: system
+        pass_filenames: false
+        files: ^frontend/
+
+      - id: deno-lint
+        name: deno lint
+        entry: just lint --fix
+        language: system
+        pass_filenames: false
+        files: ^frontend/
+
+      - id: deno-check
+        name: deno check
+        entry: just typecheck
+        language: system
+        pass_filenames: false
+        files: ^frontend/
+{%- endif %}
