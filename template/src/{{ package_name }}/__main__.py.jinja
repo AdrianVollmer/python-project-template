@@ -1,7 +1,10 @@
+"""Entry point for `python -m {{ package_name }}` and the console script."""
+
 from {{ package_name }}.cli import cli
 
 
 def main() -> None:
+    """Run the CLI."""
     cli()
 
 

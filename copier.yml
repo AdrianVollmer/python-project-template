@@ -22,6 +22,12 @@ project_description:
   help: One-line project description
   default: ""
 
+project_summary:
+  type: str
+  when: false
+  default: >-
+    {{ (project_description or project_name).rstrip('.!?') }}.
+
 package_name:
   type: str
   help: Importable Python package name (snake_case)
