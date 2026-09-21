@@ -57,6 +57,7 @@ my-project/
 │       └── py.typed
 ├── tests/
 │   └── test_<package_name>.py
+├── .copier-answers.yml    # enables `copier update`
 ├── .gitignore
 ├── .pre-commit-config.yaml
 ├── justfile
