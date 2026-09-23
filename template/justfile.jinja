@@ -42,9 +42,27 @@ check: lint typecheck fmt-check
 hooks-install:
     uv run prek install
 
-# Bump project version (major/minor/patch/...), e.g. `just bump minor`
+# Tag the next version (major/minor/patch, default patch), e.g. `just bump minor`
+# Version comes from the latest vX.Y.Z git tag (uv-dynamic-versioning); push the tag yourself
 bump level="patch":
-    uv version --bump {{ '{{' }}level{{ '}}' }}
+    #!/usr/bin/env bash
+    set -euo pipefail
+    latest="$(git tag --list 'v*' --sort=-v:refname | head -n1)"
+    IFS=. read -r major minor patch <<< "${latest#v}"
+    case "{{ '{{' }}level{{ '}}' }}" in
+        major) major=$((major + 1)); minor=0; patch=0 ;;
+        minor) minor=$((minor + 1)); patch=0 ;;
+        patch) patch=$((patch + 1)) ;;
+        *) echo "Unknown level: {{ '{{' }}level{{ '}}' }}" >&2; exit 1 ;;
+    esac
+    new="v${major}.${minor}.${patch}"
+    git tag -a "$new" -m "$new"
+    echo "Tagged $new"
+    # uv's build cache is keyed by source mtimes, not by git tag, so a bump on an
+    # otherwise-unchanged tree needs a touch to be picked up; drop stale dist artifacts too
+    touch pyproject.toml
+    rm -rf dist
+    uv sync
 
 # Run tests
 test:
